@@ -1,0 +1,7 @@
+Intel core i3 6006u  2 cores / 4 n_threads
+8gb RAM
+
+C game of life    / 1 thread 261.36s / 2 threads 133.41s / 4 threads 121.27s / 8 threads 121.40s
+C highlife        / 1 thread 264.93s / 2 threads 135.18s / 4 threads 127.17s / 8 threads 123.38s
+Java game of Life / 1 thread  64.78s / 2 threads  34.90s / 4 threads  36.60s / 8 threads  44.93s
+Java HighLife     / 1 thread  64.63s / 2 threads  35.17s / 4 threads  36.79s / 8 threads  42.76s
