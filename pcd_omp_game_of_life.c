@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
+double tempo_seq=0, start_seq;
+
 int **create_grid(int n){
   int **m;
   int i, j;
@@ -90,6 +92,7 @@ void print_grid(int n, int*** m){
 }
 
 void simulation(int n_it, int n, int ***m1, int ***m2){
+  start_seq = omp_get_wtime();
   int **grid = *m1;
   int **new_grid = *m2;
   int **temp;
@@ -115,22 +118,24 @@ void simulation(int n_it, int n, int ***m1, int ***m2){
     if(k == 0){ printf("Condição inicial: %d\n", count_living_cells(n, &grid)); }
     else { printf("Geração %d: %d\n", k , count_living_cells(n, &grid)); }
 
+    start_seq = omp_get_wtime();
     // print_grid(n, &grid);
     temp = grid;
     grid = new_grid;
     new_grid = temp;
+    tempo_seq += omp_get_wtime() - start_seq;
   }
   printf("Última geração (%d iterações): %d células vivas\n", n_it, count_living_cells(n, &grid));
 
 }
 
 int main(int argc, char const *argv[]) {
-  omp_set_num_threads(8);
+  start_seq = omp_get_wtime();
+  omp_set_num_threads(1);
   double start, end;
   start = omp_get_wtime();
 
   int n = 2048;
-  int n_threads = 4;
 
   int **grid = create_grid(n);
   int **new_grid = create_grid(n);
@@ -138,11 +143,19 @@ int main(int argc, char const *argv[]) {
   grid_init(&grid);
 
   int n_it = 2000;
+
+  tempo_seq += omp_get_wtime() - start_seq;
   simulation(n_it, n, &grid, &new_grid);
+
+  start_seq = omp_get_wtime();
 
   end = omp_get_wtime();
 
   printf("Tempo de execução: %f s. \n", end-start);
+
+
+  tempo_seq += omp_get_wtime() - start_seq;
+  // printf("Tempo de execução sequencial: %f s. \n", tempo_seq + (n_it * 0.000001 * 8.8) + (n_it * 0.000001 * 9.4));
 
 
   return 0;

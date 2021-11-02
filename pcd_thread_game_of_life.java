@@ -7,7 +7,7 @@ public class pcd_thread_game_of_life{
 
     int n = 2048;
     int n_it = 2000;
-    int n_threads = 8;
+    int n_threads = 1;
 
     long startTime = System.currentTimeMillis();
 

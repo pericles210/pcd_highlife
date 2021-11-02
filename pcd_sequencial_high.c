@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
+double tempo_seq=0, start_seq;
+
 int **create_grid(int n){
   int **m;
   int i, j;
@@ -69,7 +71,7 @@ void grid_init(int*** m){
 int count_living_cells(int n, int*** m){
   int **grid = *m;
   int i, j, result = 0;
-  #pragma omp parallel for private(i,j) reduction(+ : result)
+  // #pragma omp parallel for private(i,j) reduction(+ : result)
   for(i = 0; i < n; i++){
     for(j = 0; j < n; j++){
       result += grid[i][j];
@@ -90,14 +92,15 @@ void print_grid(int n, int*** m){
 }
 
 void simulation(int n_it, int n, int ***m1, int ***m2){
+  start_seq = omp_get_wtime();
   int **grid = *m1;
   int **new_grid = *m2;
   int **temp;
   int i, j, k, n_living_neigh;
-  printf("** Highlife\n");
+  printf("** HighLife\n");
 
   for(k = 0; k < n_it; k++){
-    #pragma omp parallel for private (i,j,n_living_neigh) shared(n,grid,new_grid)
+    // #pragma omp parallel for private (i,j,n_living_neigh) shared(n,grid,new_grid)
       for(i = 0; i < n; i++){
         for(j = 0; j < n; j++){
           n_living_neigh = get_neighbors(i, j, n, &grid);
@@ -115,21 +118,25 @@ void simulation(int n_it, int n, int ***m1, int ***m2){
     if(k == 0){ printf("Condição inicial: %d\n", count_living_cells(n, &grid)); }
     else { printf("Geração %d: %d\n", k , count_living_cells(n, &grid)); }
 
+    start_seq = omp_get_wtime();
     // print_grid(n, &grid);
     temp = grid;
     grid = new_grid;
     new_grid = temp;
+    tempo_seq += omp_get_wtime() - start_seq;
   }
   printf("Última geração (%d iterações): %d células vivas\n", n_it, count_living_cells(n, &grid));
 
 }
 
 int main(int argc, char const *argv[]) {
+  start_seq = omp_get_wtime();
   omp_set_num_threads(1);
   double start, end;
   start = omp_get_wtime();
 
   int n = 2048;
+  int n_threads = 1;
 
   int **grid = create_grid(n);
   int **new_grid = create_grid(n);
@@ -137,11 +144,19 @@ int main(int argc, char const *argv[]) {
   grid_init(&grid);
 
   int n_it = 2000;
+
+  tempo_seq += omp_get_wtime() - start_seq;
   simulation(n_it, n, &grid, &new_grid);
+
+  start_seq = omp_get_wtime();
 
   end = omp_get_wtime();
 
   printf("Tempo de execução: %f s. \n", end-start);
+
+
+  tempo_seq += omp_get_wtime() - start_seq;
+  // printf("Tempo de execução sequencial: %f s. \n", tempo_seq + (n_it * 0.000001 * 8.8) + (n_it * 0.000001 * 9.4));
 
 
   return 0;

@@ -1,6 +1,6 @@
 import java.lang.reflect.InvocationTargetException;
 
-public class pcd_thread_highlife{
+public class pcd_seq{
 
   public static void main(String[] args) throws InterruptedException,
   InvocationTargetException{
@@ -61,32 +61,34 @@ public class pcd_thread_highlife{
 			InvocationTargetException{
     int[][] temp;
     int i, j, thread, k, n_living_neigh;
-    System.out.printf("** HighLife\n");
+    System.out.printf("** Game of Life\n");
 
-    Thread[] v_t = new Thread[n_threads];
+    // Thread[] v_t = new Thread[n_threads];
     Run_cell_simu[] v_p = new Run_cell_simu[n_threads];
 
     Count_living_cells[] c_v = new Count_living_cells[n_threads];
     for(k = 0; k < n_it; k++){
       for(i = 0; i < n_threads; i++){
         v_p[i] = new Run_cell_simu(i, n, i, n_threads, grid, new_grid);
-        v_t[i] = new Thread(v_p[i]);
-        v_t[i].start();
+        // v_t[i] = new Thread(v_p[i]);
+        // v_t[i].start();
+        v_p[i].run();
       }
-      for(i = 0; i < n_threads; i++){
-        v_t[i].join();
+      // for(i = 0; i < n_threads; i++){
+        // v_t[i].join();
 
-      }
+      // }
 
 
       for(i = 0; i < n_threads; i++){
         c_v[i] = new Count_living_cells(n,i,n_threads, grid);
-        v_t[i] = new Thread(c_v[i]);
-        v_t[i].start();
+        // v_t[i] = new Thread(c_v[i]);
+        // v_t[i].start();
+        c_v[i].run();
       }
       int result = 0;
       for(i = 0; i < n_threads; i++){
-        v_t[i].join();
+        // v_t[i].join();
         result+=c_v[i].get_result();
       }
       if(k == 0){ System.out.printf("Condição inicial: %d\n", result); }
@@ -100,12 +102,13 @@ public class pcd_thread_highlife{
 
     for(i = 0; i < n_threads; i++){
       c_v[i] = new Count_living_cells(n,i,n_threads, grid);
-      v_t[i] = new Thread(c_v[i]);
-      v_t[i].start();
+      // v_t[i] = new Thread(c_v[i]);
+      // v_t[i].start();
+      c_v[i].run();
     }
     int result = 0;
     for(i = 0; i < n_threads; i++){
-      v_t[i].join();
+      // v_t[i].join();
       result+=c_v[i].get_result();
     }
 
@@ -194,7 +197,7 @@ class Run_cell_simu implements Runnable {
         if((n_living_neigh == 2 || n_living_neigh == 3) && grid[i][j] == 1){ // caso 1
           new_grid[i][j] = 1;
         }
-        else if((n_living_neigh == 3 || n_living_neigh == 6) && grid[i][j] == 0){ // caso 2
+        else if((n_living_neigh == 3) && grid[i][j] == 0){ // caso 2
           new_grid[i][j] = 1;
         }
         else{ // caso 3
